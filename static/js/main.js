@@ -49,16 +49,19 @@ if (pathname.includes('login')) {
 // user profile
 if (pathname.includes("profile")) {
     if (localStorage.getItem("user_id")) {   
-        getPweets(localStorage.getItem("user_id"));
+        getPweets(pathname.split("/")[2]);
         $.ajax({
             url: `/api${pathname}`,
             method: "GET",
             success: res => {
+                console.log(pathname.split("/")[2])
                 $(".user-info").html(`
-                <h1 class="text-center">HI &#128075; ${res.data.user.name.toUpperCase()}!</h1>
+                <h1 class="text-center">${res.data.user.name.toUpperCase()}'s Pweets!</h1>
                 <div class='form'>
-                    <input class='form-control' type='text' id='pweet_text' name='pweet_text' placeholder='Say something'/>
-                    <button class='btn btn-primary' id="pweet-btn">SUBMIT</button>
+                    <input class='form-control mb-1' type='text' id='pweet_text' name='pweet_text' placeholder='Say something'/>
+                    <p class="text-center">
+                        <button class='btn btn-primary btn-block w-100' id="pweet-btn">SUBMIT</button>
+                    </p>
                 <div>
                 </div>
                 `)
@@ -78,11 +81,18 @@ if (pathname.includes("profile")) {
             method: "GET"
         })
         pweets = res.data.pweets;
-        pweets.map(item => {
+        pweets.reverse().map(item => {
             document.querySelector(".my-pweets").innerHTML += `
                 <div class='pweet-box my-2 p-2'>
-                    <p><small><b>${item.owner_name}</b></small></p>
-                    <p>${item.text}</p>
+                    <p id='item_owner_name' class="my-0">
+                        <small>
+                            <b>
+                                <a href="/profile/${item.owner}">${item.owner_name}</a>
+                            </b>
+                        </small>
+                    </p>
+                    <p class="my-0"><small><i>${item.createdAt}</i></small></p>
+                    <p class="my-0">${item.text}</p>
                 </div>
             `
         })
@@ -96,17 +106,48 @@ if (pathname.includes("profile")) {
                 text: $("#pweet_text").val()
             },
             success: res => {
-                if(res.data.status === 200) getPweets(localStorage.getItem("user_id"))
+                if (res.data.status === 200) getPweets(localStorage.getItem("user_id"))
             },
             error: err => {
                 console.log(err);
             }
-        })
+        });
+        document.querySelector("#pweet_text").value = "";
     })
     // handle logout
     $("#logout").on("click", () => {
         localStorage.removeItem("user_id");
         localStorage.removeItem("user_name");
         window.location.pathname = '/login';
+    })
+}
+
+// get all pweets
+if (pathname.includes("all_pweets")) {
+    $.ajax({
+        url: "/api/all_pweets",
+        method: "GET",
+        success: res => {
+            console.log(res);
+            pweets = res.data.pweets;
+        pweets.reverse().map(item => {
+            document.querySelector(".my-pweets").innerHTML += `
+                <div class='pweet-box my-2 p-2'>
+                    <p id='item_owner_name' class="my-0">
+                        <small>
+                            <b>
+                                <a href="/profile/${item.owner}">${item.owner_name}</a>
+                            </b>
+                        </small>
+                    </p>
+                    <p class="my-0"><small><i>${item.createdAt}</i></small></p>
+                    <p class="my-0">${item.text}</p>
+                </div>
+            `
+        })
+        },
+        error: err => {
+            console.log(err);
+        }
     })
 }

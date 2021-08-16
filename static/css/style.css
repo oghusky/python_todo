@@ -1,3 +1,8 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 .form{
     width: 80%;
     margin: 0 auto;
@@ -8,4 +13,14 @@
 }
 .pweet-box{
     border: 1px solid #2f2f2f;
+}
+
+#item_owner_name small b a:hover{
+    text-decoration: none;
+}
+
+#item_owner_name small b a{
+    cursor: pointer;
+    color: black;
+    text-decoration: none;
 }

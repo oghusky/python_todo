@@ -71,15 +71,41 @@ def getpweets(userid):
                 "id": item["id"],
                 "text": item["text"],
                 "owner": item["owner"],
-                "owner_name": item["owner_name"]
+                "owner_name": item["owner_name"],
+                "createdAt": item["createdAt"]
             })
         return jsonify(data={"status": 200, "msg": "Pweets found", "pweets": pweets})
     if request.method == "POST":
         text = request.form["text"]
         user = db.users.find_one({"id": userid})
         db.pweets.insert_one(
-            {"id": str(datetime.datetime.now().timestamp()), "owner": userid, "owner_name": user["name"], "text": text})
+            {
+                "id": str(datetime.datetime.now().timestamp()),
+                "owner": userid,
+                "owner_name": user["name"],
+                "text": text,
+                "createdAt": datetime.datetime.now()
+            })
         return jsonify(data={"status": 200, "msg": "You Pweeted"})
+
+
+@app.route("/api/all_pweets", methods=["GET"])
+def all_pweets():
+    pweets = []
+    for item in list(db.pweets.find()):
+        pweets.append({
+            "id": item["id"],
+            "text": item["text"],
+            "owner": item["owner"],
+            "owner_name": item["owner_name"],
+            "createdAt": item["createdAt"]
+        })
+    return jsonify(data={"status": 200, "msg": "Pweets found", "pweets": pweets})
+
+
+@app.route("/all_pweets", methods=["GET"])
+def get_all_pweets():
+    return render_template("userprofile.html")
 
 
 if __name__ == '__main__':
